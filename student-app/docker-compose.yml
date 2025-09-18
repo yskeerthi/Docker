@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe:18.4.0-slim
+    container_name: oracle-db
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    environment:
+      ORACLE_PASSWORD: "YSK143#yuva"
+      ORACLE_ALLOW_REMOTE: "true"
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'SELECT 1 FROM dual;' | sqlplus -s C##student_user/student123@//localhost:1521/xe | grep 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  student-app:
+    build: .
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@oracle-db:1521/xe
+      SPRING_DATASOURCE_USERNAME: C##student_user
+      SPRING_DATASOURCE_PASSWORD: student123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+volumes:
+  oracle_data:

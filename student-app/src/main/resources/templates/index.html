@@ -1,0 +1,29 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <title>Todo App</title>
+  <link rel="stylesheet" href="/styles.css"/>
+</head>
+<body>
+  <h1>Todo App</h1>
+  <form th:action="@{/add}" method="post">
+    <input type="text" name="title" placeholder="New todo" required/>
+    <button type="submit">Add</button>
+  </form>
+  <ul>
+    <li th:each="t : ${todos}">
+      <form th:action="@{|/toggle/${t.id}|}" method="post" style="display:inline">
+        <button type="submit" th:text="${t.done} ? '✓' : ' '"></button>
+      </form>
+      <span th:text="${t.title}">Title</span>
+      <form th:action="@{|/delete/${t.id}|}" method="post" style="display:inline">
+        <button type="submit">Delete</button>
+      </form>
+    </li>
+  </ul>
+
+  <h2>API</h2>
+  <p>CRUD available at <code>/api/todos</code> (GET/POST/PUT/DELETE)</p>
+</body>
+</html>
